@@ -1,0 +1,46 @@
+CREATE TABLE booking_dates(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	dateday INT(2),
+	datemonth INT(2),
+	dateyear INT(4),
+	fulldate DATE
+);
+
+CREATE TABLE booking_campsites(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	campsite VARCHAR(50)
+);
+
+CREATE TABLE booking_reserv(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	userid INT,
+	campsiteid INT,
+	startdateid INT,
+	enddateid INT,
+	FOREIGN KEY(userid) REFERENCES booking_users(id),
+	FOREIGN KEY(campsiteid) REFERENCES booking_campsites(id),
+	FOREIGN KEY(startdateid) REFERENCES booking_dates(id),
+	FOREIGN KEY(enddateid) REFERENCES booking_dates(id)
+);
+
+
+
+SELECT campsite FROM booking_campsites
+JOIN booking_reserv ON booking_campsites.id=booking_reserv.campsiteid
+WHERE booking_reserv.userid = ?
+
+SELECT campsite, fulldate_start, fulldate_end
+	FROM booking_campsites c
+	JOIN booking_reserv r ON c.id=r.campsiteid
+	JOIN booking_dates_start s ON r.startdateid=s.id
+	JOIN booking_dates_end e ON r.enddateid=e.id
+	WHERE r.userid = ?
+
+	
+SELECT campsite FROM booking_campsites
+JOIN booking_reserv ON booking_campsites.id=booking_reserv.campsiteid
+WHERE booking_reserv.userid = ?
+
+SELECT fulldate FROM booking_dates
+JOIN booking_reserv ON booking_dates.id=booking_reserv.startdateid
+WHERE booking_reserv.userid = ?
