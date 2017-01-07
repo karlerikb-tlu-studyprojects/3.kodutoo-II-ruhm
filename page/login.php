@@ -28,6 +28,7 @@
 	$country = "";
 	$address = "";
 	$phoneNumber = "";
+	$userLevel = "";
 	
 	
 
@@ -142,6 +143,16 @@
 		}
 	}
 	
+	if(isset($_POST["userLevel"] )) {
+		if(!empty($_POST["userLevel"] )) {
+			$userLevel = $_POST["userLevel"];
+		}
+	}
+	
+	if(isset($_POST["reset"])) {
+		header("Location: login.php");
+		exit();
+	}
 	
 	
 	
@@ -160,16 +171,11 @@
 		isset($_POST["dateYear"]) &&
 		isset($_POST["country"]) &&
 		isset($_POST["address"]) &&
-		isset($_POST["phoneNumber"])
+		isset($_POST["phoneNumber"]) &&
+		isset($_POST["userLevel"])
 		) {
-			echo "Salvestan... <br>";
-			echo "email: ".$signupEmail."<br>";
-			echo "password: ".$_POST["signupPassword"]."<br>";
-			echo "eesnimi: ".$_POST["firstName"]."<br>";
-			echo "perenimi: ".$_POST["lastName"]."<br>";
 			$password = hash("sha512", $_POST["signupPassword"]);
-			echo "password hashed: ".$password."<br>";
-			$User->signUp($Helper->cleanInput($signupEmail), $Helper->cleanInput($password), $Helper->cleanInput($firstName), $Helper->cleanInput($lastName), $Helper->cleanInput($dateDay), $Helper->cleanInput($dateMonth), $Helper->cleanInput($dateYear), $Helper->cleanInput($gender), $Helper->cleanInput($country), $Helper->cleanInput($address), $Helper->cleanInput($phoneNumber));
+			$User->signUp($Helper->cleanInput($signupEmail), $Helper->cleanInput($password), $Helper->cleanInput($firstName), $Helper->cleanInput($lastName), $Helper->cleanInput($dateDay), $Helper->cleanInput($dateMonth), $Helper->cleanInput($dateYear), $Helper->cleanInput($gender), $Helper->cleanInput($country), $Helper->cleanInput($address), $Helper->cleanInput($phoneNumber), $Helper->cleanInput($userLevel));
 		}
 	
 	
@@ -266,8 +272,23 @@
 			<input name="phoneNumber" type="text" value="<?=$phoneNumber;?>"> <?php echo $phoneNumberError; ?>
 		<br><br>
 		
-		<input type="submit" value="Loo kasutaja">
-		<input type="reset" value="Kustuta andmed">
+		<label>Kasutajaõigused (testimiseks)</label>
+		<br>
+			<?php if($userLevel == 1) { ?>
+			<input name="userLevel" type="radio" value="1" checked> Tavakasutaja
+			<?php } else { ?>
+			<input name="userLevel" type="radio" value="1"> Tavakasutaja
+			<?php } ?>
+			
+			<?php if($userLevel == 2) { ?>
+			<input name="userLevel" type="radio" value="2" checked> Admin kasutaja
+			<?php } else { ?>
+			<input name="userLevel" type="radio" value="2"> Admin kasutaja
+			<?php } ?>
+		<br><br>
+		
+		<input type="submit" name="submit" value="Loo kasutaja">
+		<input type="submit" name="reset" value="Kustuta andmed">
 		
 	</form>
 	

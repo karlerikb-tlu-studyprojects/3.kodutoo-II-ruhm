@@ -12,6 +12,13 @@
 		header("Location: login.php");
 		exit();
 	}
+	
+	if($_SESSION["userLevel"] == 0) {
+		session_destroy();
+		header("Location: login.php");
+		exit();
+	}
+	
 	$msg = "";
 	if(isset($_SESSION["message"])) {
 		$msg = $_SESSION["message"];
@@ -34,7 +41,6 @@
 
 ?>
 
-<h2><a href="data.php"> <--tagasi</a></h2>
 <h1>Kasutaja leht</h1>
 
 <?=$msg;?>

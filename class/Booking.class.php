@@ -17,7 +17,7 @@ class Booking {
 		$stmt->bind_param("s", $campsite);
 		
 		if($stmt->execute()) {
-			echo "Platsi lisamine õnnestus!";
+			echo "Platsi lisamine Ãµnnestus!";
 		} else {
 			echo "ERROR ".$stmt->error;
 		}
@@ -25,9 +25,32 @@ class Booking {
 	}
 	
 	
-	function getAllCampSites() {
+	function getAllCampSites($q, $sort, $direction) {
 		
-		$stmt = $this->connection->prepare("SELECT id, campsite FROM booking_campsites");
+		$allowedSortOptions = ["id", "campsite"];
+		
+		if(!in_array($sort, $allowedSortOptions)) {
+			$sort = "id";
+		}
+		
+		$orderBy = "ASC";
+		if($direction == "descending") {
+			$orderBy = "DESC";
+		}
+		
+		if($q == "") {
+			
+			$stmt = $this->connection->prepare("SELECT id, campsite FROM booking_campsites WHERE deleted IS NULL ORDER BY $sort $orderBy");
+			echo $this->connection->error;
+			
+		} else {
+			
+			$searchWord = "%".$q."%";
+			
+			$stmt = $this->connection->prepare("SELECT id, campsite FROM booking_campsites WHERE deleted IS NULL AND campsite LIKE ? ORDER BY $sort $orderBy");
+			$stmt->bind_param("s", $searchWord);
+		}
+		
 		echo $this->connection->error;
 		
 		$stmt->bind_result($id, $campsite);
@@ -44,6 +67,49 @@ class Booking {
 		return $result;
 	}
 	
+	function getSingleCampSite($currentid) {
+		
+		$stmt = $this->connection->prepare("SELECT campsite FROM booking_campsites WHERE id = ?");
+		echo $this->connection->error;
+		
+		$stmt->bind_param("i", $currentid);
+		$stmt->bind_result($campsite);
+		$stmt->execute();
+		
+		$campSites = new StdClass();
+		if($stmt->fetch()) {
+			$campSites->campsite = $campsite;
+		} else {
+			header("Location: data.php");
+			exit();
+		}
+		$stmt->close();
+		return $campSites;
+	}
+	
+	function updateCampsite($currentid, $campsite) {
+		
+		$stmt = $this->connection->prepare("UPDATE booking_campsites SET campsite = ? WHERE id = ? AND deleted IS NULL");
+		$stmt->bind_param("si", $campsite, $currentid);
+		
+		if($stmt->execute()) {
+			echo "Salvestamine Ãµnnestus!";
+		}
+		$stmt->close();
+	}
+	
+	function deleteCampsite($currentid) {
+		$stmt = $this->connection->prepare("UPDATE booking_campsites SET deleted = NOW() WHERE id = ? AND deleted IS NULL");
+		$stmt->bind_param("i", $currentid);
+		
+		if($stmt->execute()) {
+			echo "Kustutamine Ãµnnestus!";
+		}
+		$stmt->close();
+	}
+	
+	
+	
 	
 	function saveDate ($dateday, $datemonth, $dateyear) {
 		
@@ -54,7 +120,7 @@ class Booking {
 		$stmt->bind_param("iiis", $dateday, $datemonth, $dateyear, $fulldate);
 		
 		if($stmt->execute()) {
-			echo "Kuupäeva salvestamine õnnestus!";
+			echo "KuupÃ¤eva salvestamine Ãµnnestus!";
 		} else {
 			echo "ERROR ".$stmt->error;
 		}
@@ -108,7 +174,7 @@ class Booking {
 		$stmt->bind_param("iiii", $_SESSION["userId"], $campsite, $startdate, $enddate);
 		
 		if($stmt->execute()) {
-			echo "Broneerimine õnnestus!";
+			echo "Broneerimine Ãµnnestus!";
 		} else {
 			echo "ERROR ".$stmt->error;
 		}
