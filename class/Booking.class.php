@@ -181,25 +181,37 @@ class Booking {
 	}
 	
 	
-	function getAllUserBookings() {
+	function getAllUserBookings($sort, $direction) {
+		
+		$allowedSortOptions = ["campsite", "fulldate_start", "fulldate_end"];
+		
+		if(!in_array($sort, $allowedSortOptions)) {
+			$sort = "campsite";
+		}
+		
+		$orderBy = "ASC";
+		if($direction == "descending") {
+			$orderBy = "DESC";
+		}
 		
 		$stmt = $this->connection->prepare("
-			SELECT campsite, fulldate_start, fulldate_end
+			SELECT r.id, campsite, fulldate_start, fulldate_end
 			FROM booking_campsites c
 			JOIN booking_reserv r ON c.id=r.campsiteid
 			JOIN booking_dates_start s ON r.startdateid=s.id
 			JOIN booking_dates_end e ON r.enddateid=e.id
-			WHERE r.userid = ?
+			WHERE r.userid = ? AND r.deleted IS NULL ORDER BY $sort $orderBy
 		");
 		echo $this->connection->error;
 		
 		$stmt->bind_param("i", $_SESSION["userId"]);		
-		$stmt->bind_result($campsite, $startdate, $enddate);
+		$stmt->bind_result($id, $campsite, $startdate, $enddate);
 		$stmt->execute();
 		
 		$result = array();
 		while($stmt->fetch()) {
 			$b = new StdClass();
+			$b->id = $id;
 			$b->campsite = $campsite;
 			$b->fulldate_start = $startdate;
 			$b->fulldate_end = $enddate;
@@ -210,16 +222,58 @@ class Booking {
 	}
 	
 	
+	function getSingleUserBooking($currentid) {
+		$stmt = $this->connection->prepare("
+			SELECT r.id, campsite, fulldate_start, fulldate_end
+			FROM booking_campsites c
+			JOIN booking_reserv r ON c.id=r.campsiteid
+			JOIN booking_dates_start s ON r.startdateid=s.id
+			JOIN booking_dates_end e ON r.enddateid=e.id
+			WHERE r.userid = ? AND r.id = ?
+		");
+		echo $this->connection->error;
+		
+		$stmt->bind_param("ii", $_SESSION["userId"], $currentid);
+		$stmt->bind_result($id, $campsite, $startdate, $enddate);
+		$stmt->execute();
+		
+		$userBooking = new StdClass();
+		if($stmt->fetch()) {
+			$userBooking->id = $id;
+			$userBooking->campsite = $campsite;
+			$userBooking->startdate = $startdate;
+			$userBooking->enddate = $enddate;
+		} else {
+			header("Location: user.php");
+			exit();
+		}
+		$stmt->close();
+		return $userBooking;
+	}
 	
 	
-
-
-
-
-
-
-
-
+	function updateBooking($campsite, $startdate, $enddate, $currentid) {
+		$stmt = $this->connection->prepare("UPDATE booking_reserv SET campsiteid = ?, startdateid = ?, enddateid = ? WHERE id = ?");
+		echo $this->connection->error;
+		$stmt->bind_param("iiii", $campsite, $startdate, $enddate, $currentid);
+		
+		if($stmt->execute()) {
+			echo "Broneeringu muutmine õnnestus!";
+		} else {
+			echo "ERROR ".$stmt->error;
+		}
+		$stmt->close();
+	}
+	
+	function deleteBooking($currentid) {
+		$stmt = $this->connection->prepare("UPDATE booking_reserv SET deleted = NOW() WHERE id = ? AND deleted IS NULL");
+		$stmt->bind_param("i", $currentid);
+		
+		if($stmt->execute()) {
+			echo "Kustutamine õnnestus";
+		}
+		$stmt->close();
+	}
 
 
 

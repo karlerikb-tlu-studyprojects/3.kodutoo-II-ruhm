@@ -1,6 +1,6 @@
 <?php
 
-	require("../functions.php");
+require("../functions.php");
 	
 	if(!isset($_SESSION["userId"])) {
 		header("Location: login.php");
@@ -31,14 +31,32 @@
 	) {
 		$Booking->saveUserCampSite($Helper->cleanInput($_POST["selectCampSite"]), $Helper->cleanInput($_POST["bookStartDate"]), $Helper->cleanInput($_POST["bookEndDate"]));
 	}
-	
-	
-	$campsites = $Booking->getAllCampSites();
-	$bookingDatesStart = $Booking->getAllStartDates();
-	$bookingDatesEnd = $Booking->getAllEndDates();
-	$userbookings = $Booking->getAllUserBookings();
+
+$q = "";
+
+
+$bookingDatesStart = $Booking->getAllStartDates();
+$bookingDatesEnd = $Booking->getAllEndDates();
+
+
+
+	if(isset($_GET["sort"]) && isset($_GET["direction"])) {
+		$sort = $_GET["sort"];
+		$direction = $_GET["direction"];
+	} else {
+		$sort = "id";
+		$direction = "ascending";
+	}
 	
 
+	
+
+$userbookings = $Booking->getAllUserBookings($sort, $direction);
+$campsites = $Booking->getAllCampSites($q, $sort, $direction);
+	
+	
+
+require("../header.php");
 ?>
 
 <h1>Kasutaja leht</h1>
@@ -109,12 +127,19 @@
 	
 <?php
 
-	$html = "<table>";
+$direction = "ascending";
 	
+	if(isset($_GET["direction"])) {
+		if($_GET["direction"] == "ascending") {
+			$direction = "descending";
+		}
+	}
+
+	$html = "<table>";
 	$html .= "<tr>";
-		$html .= "<th>Plats</th>";
-		$html .= "<th>Algus</th>";
-		$html .= "<th>Lõpp</th>";
+		$html .= "<th><a href='?sort=campsite&direction=".$direction."'>Plats</a></th>";
+		$html .= "<th><a href='?sort=fulldate_start&direction=".$direction."'>Algus</a></th>";
+		$html .= "<th><a href='?sort=fulldate_end&direction=".$direction."'>Lõpp</a></th>";
 	$html .= "</tr>";
 
 	foreach($userbookings as $b) {
@@ -122,9 +147,9 @@
 			$html .= "<td>".$b->campsite."</td>";
 			$html .= "<td>".$b->fulldate_start."</td>";
 			$html .= "<td>".$b->fulldate_end."</td>";
+			$html .= "<td><a href='editbookings.php?id=".$b->id."'>muuda</a></td>";
 		$html .= "</tr>";
 	}
-	
 	$html .= "</table>";
 	echo $html;
 	
@@ -151,3 +176,4 @@
 
 
 
+<?php require("../footer.php"); ?>

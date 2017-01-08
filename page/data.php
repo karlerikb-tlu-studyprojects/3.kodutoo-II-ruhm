@@ -1,6 +1,6 @@
 <?php
 
-	require("../functions.php");
+require("../functions.php");
 	
 	if(!isset($_SESSION["userId"] )) {
 		header("Location: login.php");
@@ -66,19 +66,6 @@ $createCampSiteError = "";
 	
 ?>
 
-<head>
-<style>
-table, td, th {    
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-table {
-    border-collapse: collapse;
-    width: auto;
-}
-</style>
-</head>
 
 <h1>Data</h1>
 
@@ -205,7 +192,7 @@ $direction = "ascending";
 
 
 
-
+require("../header.php");
 ?>
 
 <br>
@@ -233,3 +220,4 @@ $direction = "ascending";
 
 
 
+<?php require("../footer.php"); ?>

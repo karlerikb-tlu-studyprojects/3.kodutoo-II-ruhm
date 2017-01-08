@@ -51,7 +51,7 @@ $campSite = $Booking->getSingleCampSite($_GET["id"]);
 
 
 
-
+require("../header.php");
 ?>
 
 
@@ -75,3 +75,4 @@ $campSite = $Booking->getSingleCampSite($_GET["id"]);
 </form>
 
 
+<?php require("../footer.php"); ?>

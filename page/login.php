@@ -1,6 +1,6 @@
 <?php
 
-	require("../functions.php");
+require("../functions.php");
 	
 	if(isset($_SESSION["userId"] )) {
 		header("Location: data.php");
@@ -188,7 +188,7 @@
 	
 	
 	
-
+require("../header.php");
 ?>
 
 
@@ -305,4 +305,4 @@
 		
 		
 		
-		
+<?php require("../footer.php"); ?>

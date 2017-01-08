@@ -37,7 +37,7 @@ $singleUser = $User->getSingleUser($_GET["id"]);
 
 
 
-
+require("../header.php");
 ?>
 
 
@@ -81,3 +81,4 @@ $singleUser = $User->getSingleUser($_GET["id"]);
 
 
 
+<?php require("../footer.php"); ?>
